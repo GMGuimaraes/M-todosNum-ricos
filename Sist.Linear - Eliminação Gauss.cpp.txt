@@ -1,0 +1,67 @@
+
+#include "MatAlgebra.h"
+
+void eliminacaoGauss(float** A, float* b, int n);
+float* resolveSistTriangSuperior(float** A, float* b, int n);
+
+int main(){
+
+	MatAlgebra g; //Criando um objeto para usar os métodos do MatAlgebra
+	
+	int n = 4;
+	float** A = g.criaMatriz(n,n);
+	float* b = g.criaVetor(n);
+	//g.leDados(A, b, "exemploElimGauss.in");	
+	g.leDados(A, b, "ExSistemaLinear2.in");	
+
+	g.imprimeMatriz("A", A, n, n);
+	g.imprimeVetor("b", b, n);
+	
+	//Método que transforma o sistema em Triangular Superior
+	eliminacaoGauss(A, b, n);
+	
+	g.imprimeMatriz("A", A, n, n);
+	g.imprimeVetor("b", b, n);
+	
+	//Dado que a matriz A é triangular superior. Resolve o sistema
+	float* x = resolveSistTriangSuperior(A, b, n);
+	
+	g.imprimeVetor("x", x, n);
+	
+}
+
+//método para resolver sistema linear superior
+float* resolveSistTriangSuperior(float** A, float* b, int n){
+	MatAlgebra g;
+	float* x = g.criaVetor(n);
+	
+	//para cada Xi. Iniciando pelo Xn
+	for(int i=n-1; i>=0 ;i--){
+		float s = 0;
+		for(int j=i+1; j<n; j++){ //Somatório
+			s = s + A[i][j]*x[j];
+		}		
+		x[i] = (b[i] - s)/A[i][i];
+	}
+	
+	return x;
+}
+
+//Implementar o método para atualizar a linha i  da matriz A de acordo com a fórmula
+//linhaA(i) = linhaA(i) + linhaA(j)*c
+void atualizaLinha(float** A, int n, int i, int j, float c){
+	for(int k=0; k<n; k++){//percorrer as colunas da linha i
+		A[i][k] = A[i][k] + A[j][k] * c;
+	}
+}
+
+void eliminacaoGauss(float** A, float* b, int n){
+	//Transforma a matriz A em triangular superior
+	for(int j=0; j<n-1; j++){ //Passos: da coluna 0 até a penúltima
+		for(int i=j+1; i<n; i++){ //linha
+			float c = -A[i][j]/A[j][j];
+			atualizaLinha(A, n, i, j, c); //linha(i) + linha(j)*c
+			b[i] = b[i] + b[j] * c;
+		}
+	}
+}
